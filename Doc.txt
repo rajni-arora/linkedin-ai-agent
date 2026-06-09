@@ -166,12 +166,49 @@ Given a target audience string like "CTOs at Series B startups", builds a detail
                                                                                                                                   ---
 Most impactful to build first: The Draft Refinement Agent and Post Analyzer — they slot directly into your existing /api/generate flow and add visible value without requiring new UI.
 
-cd /Users/ankitpahuja/Downloads/testproject/linkedin-ai-agent/backend
-source venv/bin/activate
-uvicorn main:app --reload --port 8000
+---
 
-cd /Users/ankitpahuja/Downloads/testproject/linkedin-ai-agent/frontend
-npm run dev
+## How to Run the App
+
+### Prerequisites
+- Python 3.10+
+- Node.js 18+
+- A `.env` file in `linkedin-ai-agent/backend/` with your OpenAI API key
+- A `.env.local` file in `linkedin-ai-agent/frontend/` with your Supabase credentials
+
+### 1. Set up environment files
+
+Backend — create `linkedin-ai-agent/backend/.env`:
+  OPENAI_API_KEY=sk-...
+
+Frontend — create `linkedin-ai-agent/frontend/.env.local`:
+  NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+  NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+
+### 2. Start the backend (FastAPI)
+
+  cd linkedin-ai-agent/backend
+  source ../../../venv/bin/activate
+  uvicorn main:app --reload --port 8000
+
+Backend runs at: http://localhost:8000
+
+### 3. Start the frontend (Next.js)
+
+Open a second terminal tab:
+
+  cd linkedin-ai-agent/frontend
+  npm install        # only needed the first time
+  npm run dev
+
+Frontend runs at: http://localhost:3000
+
+### 4. Open the app
+
+Go to http://localhost:3000 in your browser.
+You will be redirected to /login. Sign up or log in to use the app.
+
+Both the backend and frontend must be running at the same time.
 
 Wanted to create a subagent thru claude cli, what should be my approach / steps to do this?
 
