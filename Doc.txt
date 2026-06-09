@@ -1,0 +1,192 @@
+Build a LinkedIn AI Social Media Agent as a single-page React application on python that lets users generate professional LinkedIn posts by calling the Anthropic Claude API directly from the frontend.
+
+---
+
+## App Overview
+
+The app is called "LinkedAI" — a sleek, minimal tool for crafting high-quality LinkedIn content. It has two main views: a Post Generator and a Preview Panel.
+
+---
+
+## Features to Build
+
+### 1. Post Generator Form
+Build a form with the following inputs:
+- **Topic / Idea** (textarea): What the post should be about
+- **Tone selector** (dropdown or pill buttons): Options — Professional, Inspirational, Storytelling, Thought Leadership, Casual, Humorous
+- **Post format** (dropdown): Options — Short hook (< 150 words), Listicle (numbered tips), Personal story, Opinion/Hot take, Achievement announcement
+- **Target audience** (text input): e.g., "CTOs", "Job seekers", "Startup founders"
+- **Include CTA** (toggle): If on, append a clear call-to-action
+- **Add emojis** (toggle): If on, sprinkle relevant emojis
+- **Hashtag count** (slider, 0–10): How many hashtags to append
+- **Generate Post** button
+
+### 2. Claude API Integration
+When the user clicks "Generate Post", call the Anthropic Claude API:
+
+```js
+const response = await fetch("https://api.anthropic.com/v1/messages", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-api-key": apiKey,
+    "anthropic-version": "2023-06-01"
+  },
+  body: JSON.stringify({
+    model: "claude-sonnet-4-20250514",
+    max_tokens: 1000,
+    system: `You are an expert LinkedIn content creator. You write posts that feel authentic, 
+get high engagement, and match the requested tone perfectly. Always output ONLY the post text — 
+no preamble, no explanation, no quotes around the post.`,
+    messages: [{
+      role: "user",
+      content: buildPrompt(formValues)
+    }]
+  })
+});
+```
+
+Build a `buildPrompt(formValues)` function that assembles a detailed instruction from the form fields, e.g.:
+"Write a [tone] LinkedIn post in [format] format about: [topic]. Target audience: [audience]. [If CTA enabled: End with a strong call-to-action.] [If emojis enabled: Use relevant emojis naturally.] Include [N] hashtags at the end."
+
+### 3. API Key Input
+- Show a small settings panel (collapsible or modal) where the user enters their Anthropic API key
+- Store it in component state only (never localStorage)
+- Show a masked input (password type) with a toggle-visibility button
+- Display a warning: "Your key is used client-side. For production, proxy through a backend."
+
+### 4. Post Preview Panel
+After generation:
+- Display the generated post in a LinkedIn-style card mockup (white card, profile avatar placeholder, name placeholder, "LinkedIn • Just now")
+- Show character count (LinkedIn limit: 3000 chars) with a color indicator (green/amber/red)
+- Show a word count
+- Add a **Copy to Clipboard** button
+- Add a **Regenerate** button (calls API again with same inputs)
+- Add an **Edit** button to make the output editable in-place
+
+### 5. Post History (in-memory)
+- Keep a sidebar or bottom drawer with the last 5 generated posts
+- Each history item shows a truncated preview (first 60 chars) and the tone/format used
+- Clicking a history item loads it back into the preview
+
+### 6. Prompt Templates (optional enhancement)
+Offer 4–5 preset "starter templates" that auto-fill the form:
+- "Share a career lesson"
+- "Announce a product launch"
+- "Give an industry opinion"
+- "Share a team win"
+- "Offer a practical tip"
+
+---
+
+## UI / Design Requirements
+
+- Clean, professional aesthetic — inspired by LinkedIn's own blue palette but more minimal
+- Responsive layout: two-column (form left, preview right) on desktop; stacked on mobile
+- Loading state: animated skeleton or spinner on the preview card while API call is in flight
+- Error handling: show clear error messages if API key is missing, invalid, or rate-limited
+- Use Tailwind CSS for styling (or plain CSS modules — your choice)
+- No external UI libraries required; keep it lightweight
+
+---
+
+## File Structure (suggested)
+
+```
+/src
+  /components
+    PostForm.jsx         — all form inputs
+    PostPreview.jsx      — LinkedIn card mockup + copy/edit
+    PostHistory.jsx      — last 5 posts sidebar
+    ApiKeyInput.jsx      — key input modal/panel
+    TemplatePicker.jsx   — preset templates
+  /lib
+    claudeApi.js         — fetch wrapper for Anthropic API
+    buildPrompt.js       — assembles prompt string from form values
+  App.jsx                — root layout, state management
+  index.css              — global styles
+```
+
+---
+
+## State to Manage (in App.jsx or a context)
+
+```js
+{
+  apiKey: "",              // user's Anthropic key
+  formValues: {
+    topic: "",
+    tone: "Professional",
+    format: "Short hook",
+    audience: "",
+    includeCTA: true,
+    addEmojis: false,
+    hashtagCount: 3
+  },
+  generatedPost: "",       // current output
+  isLoading: false,
+  error: null,
+  history: []              // array of last 5 { post, tone, format, timestamp }
+}
+```
+
+---
+
+## Deliverables
+
+1. A fully working React (or Next.js) app
+2. All components listed above
+3. Claude API integration that actually calls the endpoint
+4. LinkedIn-style post preview card
+5. Copy to clipboard functionality
+6. In-memory post history (last 5 posts)
+7. Basic error handling for API failures
+8. README with setup instructions and how to add an API key
+
+Based on your project — a LinkedIn AI content generator with a FastAPI backend and React frontend — here are subagents that would naturally extend it:
+
+---
+1. Draft Refinement Agent
+
+Takes a generated post and returns 2–3 improved variants. Could run in parallel via Agent() calls and compare outputs before surfacing the best one to the user.
+
+2. Trending Topic Research Agent
+
+Given a user's industry/role, web-searches LinkedIn trending topics or viral post patterns and returns a curated list of post ideas. Feeds directly into the form's "Topic" field.
+
+
+4. Post Analyzer / Engagement Scorer Agent
+                                                                                                                                  Takes any existing LinkedIn post text, scores it on CTA clarity, and returns specific improvementsuggestions.                                                                                                                      
+5. Content Calendar Agent                                                                                                         
+Given a user's role, goals, and posting frequency, generates a 1–4 week content calendar with topics, formats, and tone           recommendations for each slot.
+                                                                                                                                  6. A/B Variant Generator
+                                                                                                                                  Generates N versions of the same post with slight va wording) so the user can pick the best one — or youcould auto-score them.                                                                                                            
+7. Audience Persona Builder Agent                                                                                                 
+Given a target audience string like "CTOs at Series B startups", builds a detailed persona (pain points, vocabulary, what they valto inject into the prompt — making posts more precis
+                                                                                                                                  ---
+Most impactful to build first: The Draft Refinement Agent and Post Analyzer — they slot directly into your existing /api/generate flow and add visible value without requiring new UI.
+
+cd /Users/ankitpahuja/Downloads/testproject/linkedin-ai-agent/backend
+source venv/bin/activate
+uvicorn main:app --reload --port 8000
+
+cd /Users/ankitpahuja/Downloads/testproject/linkedin-ai-agent/frontend
+npm run dev
+
+Wanted to create a subagent thru claude cli, what should be my approach / steps to do this?
+
+------
+1. Use claude design to create frontend 
+feature: add voice input for a post
+2. user management, session management
+3. storage - database (supabase)
+4. tie to backend
+5. Security audit - claude plugin
+6. Git push
+7. Host - Vercel
+
+Doubt - 
+I have enabled RLS policies in supabase so now users only see their own posts.
+Need to crosscheck with the data.
+where did you add? is there any code changes?
+disable email confirmation

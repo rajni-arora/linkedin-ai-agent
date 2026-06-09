@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PRD — LinkedIn AI Content Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Lora:ital,wght@0,400;1,400;1,500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ink: #0a0a0f;
+    --paper: #f5f2eb;
+    --accent: #0057ff;
+    --accent2: #ff3d00;
+    --muted: #6b6760;
+    --rule: #d4cfc5;
+    --highlight: #fff5c2;
+    --card: #ffffff;
+    --tag-bg: #e8e4db;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lora', Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 3rem 2rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.12;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 30%;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: var(--accent2);
+    opacity: 0.1;
+  }
+  .header-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+  .doc-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(0,87,255,0.12);
+    border: 1px solid rgba(0,87,255,0.3);
+    display: inline-block;
+    padding: 0.25rem 0.7rem;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.8rem;
+  }
+  header h1 span { color: var(--accent); }
+  .header-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: #888;
+    display: flex; gap: 2rem; flex-wrap: wrap;
+    margin-top: 1.2rem;
+    border-top: 1px solid #222;
+    padding-top: 1rem;
+  }
+  .header-meta span strong { color: var(--paper); }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 900px; margin: 0 auto; padding: 0 2rem; }
+
+  /* ── TOC ── */
+  .toc-wrap {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2rem;
+  }
+  .toc-inner { max-width: 900px; margin: 0 auto; }
+  .toc-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.3rem 1.5rem;
+  }
+  .toc-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    display: flex; gap: 0.5rem; align-items: baseline;
+  }
+  .toc-num { color: var(--accent); min-width: 1.4rem; }
+  .toc-name { color: #ccc; }
+
+  /* ── SECTIONS ── */
+  section { padding: 3.5rem 0 1rem; border-top: 1px solid var(--rule); }
+  section:first-of-type { border-top: none; }
+
+  .section-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+  }
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin: 2rem 0 0.7rem;
+  }
+  p { margin-bottom: 1rem; color: #2a2a2a; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── CALLOUT BOXES ── */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: #f0f4ff;
+    padding: 1rem 1.2rem;
+    margin: 1.5rem 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .callout.warn { border-color: var(--accent2); background: #fff3f0; }
+  .callout.success { border-color: #00b87a; background: #f0fff8; }
+  .callout-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    color: var(--accent);
+  }
+  .callout.warn .callout-label { color: var(--accent2); }
+  .callout.success .callout-label { color: #00b87a; }
+  .callout p { color: #1a1a2a; margin: 0; font-size: 0.9rem; }
+
+  /* ── FEATURE CARDS ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 1.2rem;
+    position: relative;
+  }
+  .card-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+  .card p { font-size: 0.82rem; color: var(--muted); margin: 0; line-height: 1.5; }
+  .card-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    margin-bottom: 0.6rem;
+  }
+  .tag-core { background: #dbeafe; color: #1d4ed8; }
+  .tag-ai   { background: #f3e8ff; color: #7c3aed; }
+  .tag-ux   { background: #dcfce7; color: #166534; }
+  .tag-int  { background: #fef9c3; color: #854d0e; }
+  .tag-sec  { background: #fee2e2; color: #991b1b; }
+
+  /* ── USER STORIES TABLE ── */
+  .story-list { margin: 1rem 0; }
+  .story {
+    display: grid;
+    grid-template-columns: 2rem 1fr auto;
+    gap: 0.8rem;
+    align-items: start;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.88rem;
+  }
+  .story:last-child { border-bottom: none; }
+  .story-id {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    font-weight: 500;
+    padding-top: 2px;
+  }
+  .story-text { color: #1a1a1a; line-height: 1.5; }
+  .priority {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+  .p1 { background: #fee2e2; color: #991b1b; }
+  .p2 { background: #fef9c3; color: #854d0e; }
+  .p3 { background: #dcfce7; color: #166534; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+  .flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 110px;
+  }
+  .flow-box {
+    background: var(--card);
+    border: 1.5px solid var(--rule);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    text-align: center;
+    width: 100px;
+  }
+  .flow-box-icon { font-size: 1.2rem; margin-bottom: 0.2rem; }
+  .flow-box-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .flow-box.highlight {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .flow-box.highlight .flow-box-label { color: white; }
+  .flow-box.human {
+    background: var(--accent2);
+    border-color: var(--accent2);
+  }
+  .flow-box.human .flow-box-label { color: white; }
+  .flow-arrow {
+    font-size: 1rem;
+    color: var(--muted);
+    padding: 0 0.3rem;
+    flex-shrink: 0;
+  }
+
+  /* ── METRICS TABLE ── */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .metric {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 6px;
+    padding: 1.2rem 1rem;
+  }
+  .metric-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .metric-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+  }
+
+  /* ── TECH STACK ── */
+  .stack-row {
+    display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;
+  }
+  .stack-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    background: var(--tag-bg);
+    color: var(--ink);
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+    border: 1px solid var(--rule);
+  }
+  .stack-layer {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 1rem 0 0.4rem;
+  }
+
+  /* ── ROADMAP ── */
+  .roadmap { margin: 1.5rem 0; }
+  .phase {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+    align-items: start;
+  }
+  .phase-label {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 0.4rem 0.6rem;
+    text-align: center;
+  }
+  .phase-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .phase-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .phase-timeline {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+  }
+  .phase-items { list-style: none; }
+  .phase-items li {
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px dashed var(--rule);
+    color: #2a2a2a;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .phase-items li::before { content: '—'; color: var(--muted); font-size: 0.7rem; }
+
+  /* ── RISK TABLE ── */
+  .risk-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.83rem; }
+  .risk-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.5rem 0.7rem;
+    border-bottom: 2px solid var(--rule);
+    background: var(--paper);
+  }
+  .risk-table td {
+    padding: 0.7rem;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .risk-table tr:last-child td { border-bottom: none; }
+  .risk-table tr:nth-child(even) td { background: rgba(0,0,0,0.02); }
+  .sev { font-family: 'DM Mono', monospace; font-size: 0.62rem; padding: 0.15rem 0.4rem; border-radius: 2px; }
+  .sev-h { background: #fee2e2; color: #991b1b; }
+  .sev-m { background: #fef9c3; color: #854d0e; }
+  .sev-l { background: #dcfce7; color: #166534; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: #555;
+    padding: 2rem;
+    margin-top: 4rem;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+  }
+  footer span { color: #888; }
+
+  @media (max-width: 600px) {
+    .flow { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+    .phase { grid-template-columns: 1fr; }
+    .story { grid-template-columns: 1fr; }
+    .story-id { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ──────────── HEADER ──────────── -->
+<header>
+  <div class="header-inner">
+    <div class="doc-label">Product Requirements Document</div>
+    <h1>LinkedIn <span>AI Content</span> Agent</h1>
+    <p style="font-family:'Lora',serif; font-style:italic; color:#aaa; font-size:0.95rem; max-width:580px;">
+      An autonomous agent that generates, reviews, and schedules LinkedIn content — with human oversight baked into every step.
+    </p>
+    <div class="header-meta">
+      <span><strong>Version</strong> 1.0</span>
+      <span><strong>Status</strong> Draft</span>
+      <span><strong>Audience</strong> Product, Engineering, Design</span>
+      <span><strong>Last Updated</strong> June 2026</span>
+    </div>
+  </div>
+</header>
+
+<!-- ──────────── TABLE OF CONTENTS ──────────── -->
+<div class="toc-wrap">
+  <div class="toc-inner">
+    <div class="toc-title">Contents</div>
+    <div class="toc-grid">
+      <div class="toc-item"><span class="toc-num">01</span><span class="toc-name">Executive Summary</span></div>
+      <div class="toc-item"><span class="toc-num">02</span><span class="toc-name">Problem Statement</span></div>
+      <div class="toc-item"><span class="toc-num">03</span><span class="toc-name">Goals & Non-Goals</span></div>
+      <div class="toc-item"><span class="toc-num">04</span><span class="toc-name">User Personas</span></div>
+      <div class="toc-item"><span class="toc-num">05</span><span class="toc-name">Agent Architecture</span></div>
+      <div class="toc-item"><span class="toc-num">06</span><span class="toc-name">Core Features</span></div>
+      <div class="toc-item"><span class="toc-num">07</span><span class="toc-name">User Stories</span></div>
+      <div class="toc-item"><span class="toc-num">08</span><span class="toc-name">Human Approval Flow</span></div>
+      <div class="toc-item"><span class="toc-num">09</span><span class="toc-name">Technical Architecture</span></div>
+      <div class="toc-item"><span class="toc-num">10</span><span class="toc-name">Success Metrics</span></div>
+      <div class="toc-item"><span class="toc-num">11</span><span class="toc-name">Roadmap</span></div>
+      <div class="toc-item"><span class="toc-num">12</span><span class="toc-name">Risks & Mitigations</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────── MAIN CONTENT ──────────── -->
+<main class="container">
+
+  <!-- 01 -->
+  <section>
+    <div class="section-eyebrow">01 — Overview</div>
+    <h2>Executive Summary</h2>
+    <p>The LinkedIn AI Content Agent is a human-in-the-loop SaaS product that automates the full lifecycle of professional content on LinkedIn — from ideation to publishing. The agent uses large language models to draft posts, applies configurable review criteria to self-evaluate content quality, presents drafts to a human approver, and schedules or publishes upon approval.</p>
+    <p>The product is designed for professionals, founders, and marketing teams who want consistent LinkedIn presence without sacrificing authenticity or brand voice. Human approval is a first-class feature — not an afterthought — ensuring the agent never publishes anything without explicit sign-off.</p>
+    <div class="callout success">
+      <div class="callout-label">Core Principle</div>
+      <p>The agent proposes; humans decide. Every published post carries a human signature, not just an AI fingerprint.</p>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section>
+    <div class="section-eyebrow">02 — Context</div>
+    <h2>Problem Statement</h2>
+    <p>LinkedIn is the dominant B2B professional network, yet most users post inconsistently or not at all. The friction points are well-documented: blank-page paralysis, time scarcity, uncertainty about tone, and lack of a structured content workflow.</p>
+    <p>Existing AI writing tools generate text but lack the opinionated workflow needed for LinkedIn: they don't understand professional context, can't self-review against brand guidelines, and have no scheduling or approval layer. This results in either over-reliance on generic AI output (risking brand damage) or continued under-use of the platform.</p>
+    <div class="callout warn">
+      <div class="callout-label">Key Insight</div>
+      <p>The gap is not writing ability — LLMs can write competent posts. The gap is workflow: ideation → draft → review → approve → schedule → publish, all in one cohesive, trustworthy loop.</p>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section>
+    <div class="section-eyebrow">03 — Scope</div>
+    <h2>Goals & Non-Goals</h2>
+    <h3>Goals</h3>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-num">G-01</div>
+        <div class="card-title">Autonomous Content Generation</div>
+        <p>Generate high-quality LinkedIn drafts from topics, URLs, notes, or context documents with minimal user input.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">G-02</div>
+        <div class="card-title">AI-Powered Self-Review</div>
+        <p>The agent critiques its own drafts against configurable brand voice, tone, and engagement criteria before surfacing them.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">G-03</div>
+        <div class="card-title">Human Approval Gate</div>
+        <p>Every post requires explicit human approval — approve, edit & approve, or reject — before it can be scheduled or published.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">G-04</div>
+        <div class="card-title">Smart Scheduling</div>
+        <p>Recommend and execute optimal posting times based on audience analytics, then publish via LinkedIn API.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">G-05</div>
+        <div class="card-title">Brand Voice Fidelity</div>
+        <p>Learn and maintain the user's personal or company voice across all generated content.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">G-06</div>
+        <div class="card-title">Analytics & Learning</div>
+        <p>Track post performance and feed insights back into future generation to continuously improve output quality.</p>
+      </div>
+    </div>
+    <h3>Non-Goals (v1)</h3>
+    <p>The following are explicitly out of scope for version 1: multi-platform support (Twitter/X, Instagram), comment moderation automation, image/video generation, team collaboration features, and LinkedIn DM management.</p>
+  </section>
+
+  <!-- 04 -->
+  <section>
+    <div class="section-eyebrow">04 — Users</div>
+    <h2>User Personas</h2>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-tag tag-core">Primary</span>
+        <div class="card-title">The Busy Professional</div>
+        <p>Founder, executive, or consultant with subject-matter expertise but no time to write consistently. Wants authenticity, control, and minimal friction. Checks the app 1–2× per week.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-core">Primary</span>
+        <div class="card-title">The Content Marketer</div>
+        <p>Manages LinkedIn presence for a brand or multiple clients. Needs volume + consistency with brand-safe output. Requires approval workflows and scheduling at scale.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-ux">Secondary</span>
+        <div class="card-title">The Personal Brand Builder</div>
+        <p>Actively growing their professional network. Posts frequently, cares deeply about voice, wants suggestions and drafts to react to rather than write from scratch.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-int">Secondary</span>
+        <div class="card-title">The Team Admin</div>
+        <p>Sets up brand guidelines, manages multiple team members' accounts, reviews aggregate analytics, and controls approval routing rules.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section>
+    <div class="section-eyebrow">05 — Architecture</div>
+    <h2>Agent Architecture</h2>
+    <p>The agent operates as a pipeline of four coordinated sub-agents, each with a distinct responsibility. This separation of concerns allows independent iteration and clear accountability.</p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-box">
+          <div class="flow-box-icon">🧠</div>
+          <div class="flow-box-label">Ideation Agent</div>
+        </div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box highlight">
+          <div class="flow-box-icon">✍️</div>
+          <div class="flow-box-label">Writer Agent</div>
+        </div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box">
+          <div class="flow-box-icon">🔍</div>
+          <div class="flow-box-label">Reviewer Agent</div>
+        </div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box human">
+          <div class="flow-box-icon">👤</div>
+          <div class="flow-box-label">Human Approval</div>
+        </div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box">
+          <div class="flow-box-icon">📅</div>
+          <div class="flow-box-label">Scheduler Agent</div>
+        </div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-box">
+          <div class="flow-box-icon">🚀</div>
+          <div class="flow-box-label">Publisher</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Sub-Agent Responsibilities</h3>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-tag tag-ai">AI</span>
+        <div class="card-title">Ideation Agent</div>
+        <p>Monitors news feeds, user-provided topics, past post performance, and industry trends. Produces a ranked list of content angles daily/weekly.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-ai">AI</span>
+        <div class="card-title">Writer Agent</div>
+        <p>Takes an approved angle and generates 1–3 draft variants in the user's defined voice. Supports post types: thought leadership, how-to, story, list, hot take.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-ai">AI</span>
+        <div class="card-title">Reviewer Agent</div>
+        <p>Scores each draft on engagement potential, brand voice fit, clarity, and LinkedIn algorithm alignment. Revises or rejects low-scoring drafts before surfacing to human.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-core">Core</span>
+        <div class="card-title">Scheduler Agent</div>
+        <p>Calculates optimal posting windows using audience timezone data and historical engagement patterns. Manages the posting queue and respects frequency limits.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section>
+    <div class="section-eyebrow">06 — Features</div>
+    <h2>Core Features</h2>
+
+    <h3>Content Generation</h3>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-tag tag-ai">AI</span>
+        <div class="card-title">Multi-format Drafts</div>
+        <p>Generate text posts, carousels (slide outlines), polls, and article intros. Each format has format-specific prompting logic.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-ai">AI</span>
+        <div class="card-title">Source Ingestion</div>
+        <p>Paste a URL, upload a PDF, or type a note — the agent extracts key insights and builds post drafts around them.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-ai">AI</span>
+        <div class="card-title">Voice Profiling</div>
+        <p>Analyze the user's past LinkedIn posts to build a reusable voice profile: vocabulary, tone, sentence length, emoji usage, CTA style.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-ux">UX</span>
+        <div class="card-title">Variant Generation</div>
+        <p>Every draft surfaces 2–3 variants (e.g., punchy vs. narrative vs. data-led). Humans pick the starting point.</p>
+      </div>
+    </div>
+
+    <h3>Review & Quality Control</h3>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-tag tag-ai">AI</span>
+        <div class="card-title">Auto-Critique</div>
+        <p>The Reviewer Agent scores each draft on 5 dimensions: hook strength, clarity, value delivery, brand alignment, CTA effectiveness.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-ai">AI</span>
+        <div class="card-title">Revision Loop</div>
+        <p>Drafts scoring below threshold are automatically revised up to 2 times before being surfaced or discarded.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-core">Core</span>
+        <div class="card-title">Brand Guidelines</div>
+        <p>Upload a brand guide or fill a structured form. Reviewer Agent enforces: banned words, required disclaimers, tone constraints.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-sec">Safety</span>
+        <div class="card-title">Compliance Filter</div>
+        <p>Flags potentially sensitive content (claims, financials, legal statements) for mandatory human review before approval is unlocked.</p>
+      </div>
+    </div>
+
+    <h3>Human Approval Interface</h3>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-tag tag-ux">UX</span>
+        <div class="card-title">Approval Inbox</div>
+        <p>Clean, mobile-first queue of posts awaiting review. Each card shows the draft, AI score breakdown, and suggested schedule time.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-ux">UX</span>
+        <div class="card-title">Inline Editor</div>
+        <p>Edit the draft directly in the approval view. Changes trigger a live re-score. Approve with or without edits.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-ux">UX</span>
+        <div class="card-title">Reject with Reason</div>
+        <p>Rejecting a post prompts a reason (optional). Reasons are fed back to the Writer Agent to improve future generations.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-int">Integration</span>
+        <div class="card-title">Notification Channels</div>
+        <p>Approval requests delivered via in-app, email, or Slack. One-click approve for low-risk, trusted-content scenarios.</p>
+      </div>
+    </div>
+
+    <h3>Scheduling & Publishing</h3>
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-tag tag-core">Core</span>
+        <div class="card-title">Content Calendar</div>
+        <p>Visual calendar view of approved and scheduled posts. Drag-and-drop rescheduling. Frequency guardrails to prevent over-posting.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-ai">AI</span>
+        <div class="card-title">Optimal Time Engine</div>
+        <p>Recommends top 3 posting windows per week based on audience timezone distribution and historical engagement data.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-int">Integration</span>
+        <div class="card-title">LinkedIn API Publishing</div>
+        <p>Publishes via official LinkedIn API. Supports text posts, images, article links, and polls. Handles API rate limits gracefully.</p>
+      </div>
+      <div class="card">
+        <span class="card-tag tag-core">Core</span>
+        <div class="card-title">Queue Management</div>
+        <p>Pause, resume, or reschedule the entire queue. Emergency "pull" feature to retract a post immediately after publishing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section>
+    <div class="section-eyebrow">07 — Requirements</div>
+    <h2>User Stories</h2>
+    <div class="story-list">
+      <div class="story"><span class="story-id">US-01</span><span class="story-text">As a busy professional, I want to give the agent a topic or URL and receive a ready-to-review draft within 60 seconds, so I can maintain posting consistency without blocking time for writing.</span><span class="priority p1">P1</span></div>
+      <div class="story"><span class="story-id">US-02</span><span class="story-text">As a user, I want to upload my past LinkedIn posts so the agent learns my voice and never sounds generic.</span><span class="priority p1">P1</span></div>
+      <div class="story"><span class="story-id">US-03</span><span class="story-text">As a user, I want to receive an approval notification with a one-tap approve button so I can review posts from my phone in under 30 seconds.</span><span class="priority p1">P1</span></div>
+      <div class="story"><span class="story-id">US-04</span><span class="story-text">As a user, I want to edit a draft inline before approving so I can refine without starting from scratch.</span><span class="priority p1">P1</span></div>
+      <div class="story"><span class="story-id">US-05</span><span class="story-text">As a user, I want to see why the AI scored a draft low so I understand what was improved before I review it.</span><span class="priority p2">P2</span></div>
+      <div class="story"><span class="story-id">US-06</span><span class="story-text">As a content marketer, I want to define brand guidelines once and have them enforced on every generated post automatically.</span><span class="priority p1">P1</span></div>
+      <div class="story"><span class="story-id">US-07</span><span class="story-text">As a user, I want to view a content calendar showing scheduled posts so I can see my posting cadence at a glance.</span><span class="priority p1">P1</span></div>
+      <div class="story"><span class="story-id">US-08</span><span class="story-text">As a user, I want the agent to suggest the best 3 times to post each week based on my audience data.</span><span class="priority p2">P2</span></div>
+      <div class="story"><span class="story-id">US-09</span><span class="story-text">As a user, I want to reject a draft with a reason so the agent learns what I don't want and stops generating similar content.</span><span class="priority p2">P2</span></div>
+      <div class="story"><span class="story-id">US-10</span><span class="story-text">As a user, I want to see post-performance analytics (views, reactions, comments) linked back to each post's draft so I know which content styles work best.</span><span class="priority p2">P2</span></div>
+      <div class="story"><span class="story-id">US-11</span><span class="story-text">As a team admin, I want to route posts above a certain risk score to a senior approver automatically, so junior staff can't inadvertently approve sensitive content.</span><span class="priority p3">P3</span></div>
+      <div class="story"><span class="story-id">US-12</span><span class="story-text">As a user, I want to pull a published post immediately if I notice an error, without leaving the app.</span><span class="priority p2">P2</span></div>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section>
+    <div class="section-eyebrow">08 — Workflow</div>
+    <h2>Human Approval Flow</h2>
+    <p>The approval workflow is the trust layer of the product. It is designed to be fast for routine content and rigorous for sensitive content.</p>
+
+    <div class="callout">
+      <div class="callout-label">Design Principle</div>
+      <p>No post ever publishes without a human touching an approval action. Even auto-schedule requires prior approval of the draft and the time window.</p>
+    </div>
+
+    <h3>Standard Flow</h3>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-num">Step 1</div>
+        <div class="card-title">Draft Arrives in Inbox</div>
+        <p>The Reviewer Agent surfaces a scored draft. User receives a push/email/Slack notification with a preview snippet.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">Step 2</div>
+        <div class="card-title">Review the Draft</div>
+        <p>Open the full draft with AI score breakdown: hook (8/10), voice match (9/10), clarity (7/10), CTA (8/10). See suggested schedule time.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">Step 3a</div>
+        <div class="card-title">Approve As-Is</div>
+        <p>Tap Approve. Post moves to scheduled queue at AI-recommended time (or user-selected override). No further action required.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">Step 3b</div>
+        <div class="card-title">Edit & Approve</div>
+        <p>Make inline edits. Live re-score reflects changes. Tap Approve Edited Version. Post enters queue with edited content.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">Step 3c</div>
+        <div class="card-title">Request Revision</div>
+        <p>Leave a note ("make it shorter", "add a data point"). Agent revises and resubmits within minutes. Returns to Step 2.</p>
+      </div>
+      <div class="card">
+        <div class="card-num">Step 3d</div>
+        <div class="card-title">Reject</div>
+        <p>Reject with optional reason tag. Draft is archived. Rejection reason is logged to improve future generation quality.</p>
+      </div>
+    </div>
+
+    <h3>Escalation Rules</h3>
+    <p>The following trigger a mandatory senior-approver review and disable one-tap approval: posts containing financial claims, legal statements, product pricing, competitor mentions, or content flagged by the compliance filter. Escalation is configurable per team.</p>
+  </section>
+
+  <!-- 09 -->
+  <section>
+    <div class="section-eyebrow">09 — Engineering</div>
+    <h2>Technical Architecture</h2>
+
+    <div class="stack-layer">AI & Agent Layer</div>
+    <div class="stack-row">
+      <span class="stack-tag">Claude / GPT-4o (generation)</span>
+      <span class="stack-tag">LangGraph (agent orchestration)</span>
+      <span class="stack-tag">RAG pipeline (voice profile)</span>
+      <span class="stack-tag">Embeddings (semantic similarity)</span>
+      <span class="stack-tag">RLHF feedback loop</span>
+    </div>
+
+    <div class="stack-layer">Backend</div>
+    <div class="stack-row">
+      <span class="stack-tag">Node.js / Python FastAPI</span>
+      <span class="stack-tag">PostgreSQL (post & approval data)</span>
+      <span class="stack-tag">Redis (queue & rate limiting)</span>
+      <span class="stack-tag">BullMQ (job scheduling)</span>
+      <span class="stack-tag">LinkedIn REST API v2</span>
+    </div>
+
+    <div class="stack-layer">Frontend</div>
+    <div class="stack-row">
+      <span class="stack-tag">Next.js 14 (App Router)</span>
+      <span class="stack-tag">React</span>
+      <span class="stack-tag">Tailwind CSS</span>
+      <span class="stack-tag">PWA (mobile approval)</span>
+    </div>
+
+    <div class="stack-layer">Infrastructure & Integrations</div>
+    <div class="stack-row">
+      <span class="stack-tag">AWS / Vercel</span>
+      <span class="stack-tag">Clerk (auth)</span>
+      <span class="stack-tag">Stripe (billing)</span>
+      <span class="stack-tag">Slack Webhooks</span>
+      <span class="stack-tag">SendGrid (email)</span>
+      <span class="stack-tag">Sentry (monitoring)</span>
+    </div>
+
+    <h3>Key Technical Decisions</h3>
+    <div class="callout">
+      <div class="callout-label">State Management</div>
+      <p>Each post draft carries a full state machine: DRAFT → REVIEWING → PENDING_APPROVAL → APPROVED → SCHEDULED → PUBLISHED (or REJECTED / RETRACTED at any stage). All state transitions are event-sourced for auditability.</p>
+    </div>
+    <div class="callout">
+      <div class="callout-label">Voice Profile Storage</div>
+      <p>Voice profiles are stored as vector embeddings + structured JSON (tone flags, vocabulary lists). Updated incrementally each time the user approves/rejects a draft with feedback.</p>
+    </div>
+    <div class="callout warn">
+      <div class="callout-label">LinkedIn API Constraint</div>
+      <p>LinkedIn's API imposes rate limits and approval requirements. The publisher must implement exponential backoff, handle 429s gracefully, and surface API errors clearly in the UI without data loss.</p>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section>
+    <div class="section-eyebrow">10 — Metrics</div>
+    <h2>Success Metrics</h2>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-value">≥80%</div>
+        <div class="metric-label">Draft Approval Rate (Month 3+)</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">&lt;60s</div>
+        <div class="metric-label">Draft Generation Time (P95)</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">&lt;90s</div>
+        <div class="metric-label">Median Approval Decision Time</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">3×</div>
+        <div class="metric-label">Increase in Posting Frequency vs Baseline</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">0</div>
+        <div class="metric-label">Posts Published Without Approval</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">≥4.2</div>
+        <div class="metric-label">User Satisfaction Score (out of 5)</div>
+      </div>
+    </div>
+
+    <h3>Leading Indicators (Weekly)</h3>
+    <p>Drafts generated, approval rate trend, time-to-approve, rejection reason distribution, and voice match score trend. These are surfaced in a product health dashboard for the team.</p>
+  </section>
+
+  <!-- 11 -->
+  <section>
+    <div class="section-eyebrow">11 — Delivery</div>
+    <h2>Roadmap</h2>
+    <div class="roadmap">
+      <div class="phase">
+        <div class="phase-label">
+          <div class="phase-num">Phase</div>
+          <div class="phase-name">Foundation</div>
+          <div class="phase-timeline">Weeks 1–6</div>
+        </div>
+        <ul class="phase-items">
+          <li>LinkedIn OAuth and API integration</li>
+          <li>Basic Writer Agent (single draft, text posts)</li>
+          <li>Manual approval inbox (web)</li>
+          <li>Basic scheduling and publishing</li>
+          <li>Voice profile: manual setup form</li>
+          <li>Post state machine and audit log</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-label">
+          <div class="phase-num">Phase</div>
+          <div class="phase-name">Intelligence</div>
+          <div class="phase-timeline">Weeks 7–12</div>
+        </div>
+        <ul class="phase-items">
+          <li>Reviewer Agent with scoring + auto-revision loop</li>
+          <li>Voice profile from past post analysis</li>
+          <li>Variant generation (2–3 drafts per request)</li>
+          <li>Inline editor in approval view</li>
+          <li>Reject-with-reason + feedback loop</li>
+          <li>Email + Slack notification channels</li>
+          <li>Content calendar view</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-label">
+          <div class="phase-num">Phase</div>
+          <div class="phase-name">Optimization</div>
+          <div class="phase-timeline">Weeks 13–20</div>
+        </div>
+        <ul class="phase-items">
+          <li>Ideation Agent with trend monitoring</li>
+          <li>Optimal time engine with audience analytics</li>
+          <li>Performance analytics dashboard</li>
+          <li>Compliance filter and escalation routing</li>
+          <li>Source ingestion (URL, PDF, notes)</li>
+          <li>Mobile PWA for one-tap approvals</li>
+          <li>Image carousel and poll support</li>
+        </ul>
+      </div>
+      <div class="phase">
+        <div class="phase-label">
+          <div class="phase-num">Phase</div>
+          <div class="phase-name">Scale</div>
+          <div class="phase-timeline">Weeks 21–28</div>
+        </div>
+        <ul class="phase-items">
+          <li>Multi-user / team workspace</li>
+          <li>Tiered approval routing by risk score</li>
+          <li>Brand guidelines management UI</li>
+          <li>API access for enterprise integrations</li>
+          <li>RLHF-based voice model fine-tuning</li>
+          <li>White-label and agency features</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section>
+    <div class="section-eyebrow">12 — Risk Management</div>
+    <h2>Risks & Mitigations</h2>
+    <table class="risk-table">
+      <thead>
+        <tr>
+          <th>Risk</th>
+          <th>Severity</th>
+          <th>Likelihood</th>
+          <th>Mitigation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>LinkedIn API deprecation or policy change blocks publishing</td>
+          <td><span class="sev sev-h">High</span></td>
+          <td><span class="sev sev-m">Medium</span></td>
+          <td>Monitor LinkedIn Developer changelog. Abstract publisher layer. Manual publish export as fallback.</td>
+        </tr>
+        <tr>
+          <td>AI generates factually incorrect or brand-damaging content</td>
+          <td><span class="sev sev-h">High</span></td>
+          <td><span class="sev sev-m">Medium</span></td>
+          <td>Human approval gate is the primary control. Compliance filter adds secondary layer. User training and clear disclaimers.</td>
+        </tr>
+        <tr>
+          <td>Voice profile doesn't reflect user's actual style</td>
+          <td><span class="sev sev-m">Medium</span></td>
+          <td><span class="sev sev-h">High</span></td>
+          <td>Iterative feedback loop from approvals and rejections. Allow manual profile editing. Offer "re-learn from scratch" reset.</td>
+        </tr>
+        <tr>
+          <td>Approval fatigue leads to rubber-stamp approvals</td>
+          <td><span class="sev sev-m">Medium</span></td>
+          <td><span class="sev sev-m">Medium</span></td>
+          <td>Minimize approval friction. Improve draft quality to reduce review burden. Consider trust-score-gated auto-approve for recurring patterns.</td>
+        </tr>
+        <tr>
+          <td>LLM API costs become unsustainable at scale</td>
+          <td><span class="sev sev-m">Medium</span></td>
+          <td><span class="sev sev-l">Low</span></td>
+          <td>Cache voice profiles. Limit revision loops. Offer tiered plans. Evaluate smaller fine-tuned models for v2.</td>
+        </tr>
+        <tr>
+          <td>Users lose trust if a post publishes without their awareness</td>
+          <td><span class="sev sev-h">High</span></td>
+          <td><span class="sev sev-l">Low</span></td>
+          <td>Hard constraint: no publish without explicit approval action logged. Full audit trail. Immediate retract feature.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>
+  <span>LinkedIn AI Content Agent — PRD v1.0 · Confidential · June 2026</span>
+</footer>
+
+</body>
+</html>
