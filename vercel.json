@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd linkedin-ai-agent/frontend && npm install && npm run build",
+  "outputDirectory": "linkedin-ai-agent/frontend/.next",
+  "installCommand": "cd linkedin-ai-agent/frontend && npm install",
+  "framework": "nextjs",
+  "rootDirectory": "linkedin-ai-agent/frontend"
+}
